@@ -26,19 +26,8 @@ public class PagoController {
         return pagoService.obtenerPorId(id);
     }
 
-    @PostMapping
-    public Pago guardar(@RequestBody Pago pago) {
-        return pagoService.guardar(pago);
-    }
-
-    @PutMapping("/{id}")
-    public Pago actualizar(@PathVariable Long id, @RequestBody Pago pago) {
-        pago.setId(id);
-        return pagoService.guardar(pago);
-    }
-
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        pagoService.eliminar(id);
+    @GetMapping("/pedido/{pedidoId}")
+    public Pago obtenerPorPedido(@PathVariable Long pedidoId) {
+        return pagoService.obtenerPorPedido(pedidoId);
     }
 }

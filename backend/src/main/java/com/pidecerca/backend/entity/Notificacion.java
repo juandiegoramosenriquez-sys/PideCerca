@@ -1,5 +1,6 @@
 package com.pidecerca.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ public class Notificacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String titulo;
     private String mensaje;
     private Boolean leida;
     private LocalDateTime fecha;
@@ -22,6 +24,7 @@ public class Notificacion {
 
     @ManyToOne
     @JoinColumn(name = "pedido_id")
+    @JsonIgnoreProperties({"detalles", "pago", "usuario", "negocio"})
     private Pedido pedido;
 
     public Notificacion() {
@@ -33,6 +36,14 @@ public class Notificacion {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
     public String getMensaje() {

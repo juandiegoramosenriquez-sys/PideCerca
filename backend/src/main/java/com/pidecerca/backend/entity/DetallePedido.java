@@ -1,5 +1,6 @@
 package com.pidecerca.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,10 +17,12 @@ public class DetallePedido {
 
     @ManyToOne
     @JoinColumn(name = "pedido_id")
+    @JsonIgnoreProperties({"detalles", "pago"})
     private Pedido pedido;
 
     @ManyToOne
     @JoinColumn(name = "producto_id")
+    @JsonIgnoreProperties({"negocio"})
     private Producto producto;
 
     public DetallePedido() {

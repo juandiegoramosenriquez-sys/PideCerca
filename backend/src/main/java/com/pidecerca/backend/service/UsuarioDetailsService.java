@@ -1,5 +1,6 @@
 package com.pidecerca.backend.service;
 
+import com.pidecerca.backend.entity.Rol;
 import com.pidecerca.backend.entity.Usuario;
 import com.pidecerca.backend.repository.UsuarioRepository;
 import org.springframework.security.core.userdetails.User;
@@ -21,14 +22,16 @@ public class UsuarioDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String correo)
             throws UsernameNotFoundException {
 
-        Usuario usuario = usuarioRepository.findByCorreo(correo)
+        Usuario usuario = usuarioRepository.findByCorreoIgnoreCase(correo)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Usuario no encontrado"));
 
+        String rol = Rol.esValido(usuario.getRol()) ? usuario.getRol() : Rol.CLIENTE;
+
         return User.builder()
                 .username(usuario.getCorreo())
-                .password(usuario.getPassword())
-                .roles(usuario.getRol())
+                .password(usuario.getPassword() == null ? "" : usuario.getPassword())
+                .roles(rol)
                 .disabled(Boolean.FALSE.equals(usuario.getActivo()))
                 .build();
     }

@@ -1,5 +1,6 @@
 package com.pidecerca.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +14,11 @@ public class Categoria {
     private String nombre;
     private String descripcion;
     private Boolean activo;
+
+    @ManyToOne
+    @JoinColumn(name = "negocio_id")
+    @JsonIgnoreProperties({"propietario"})
+    private Negocio negocio;
 
     public Categoria() {
     }
@@ -47,5 +53,17 @@ public class Categoria {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public Negocio getNegocio() {
+        return negocio;
+    }
+
+    public void setNegocio(Negocio negocio) {
+        this.negocio = negocio;
+    }
+
+    public boolean esGeneral() {
+        return negocio == null;
     }
 }

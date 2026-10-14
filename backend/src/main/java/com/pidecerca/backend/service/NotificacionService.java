@@ -1,52 +1,94 @@
 package com.pidecerca.backend.service;
 
 import com.pidecerca.backend.entity.Notificacion;
+import com.pidecerca.backend.entity.Pedido;
+import com.pidecerca.backend.entity.Usuario;
+import com.pidecerca.backend.exception.ApiException;
 import com.pidecerca.backend.repository.NotificacionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotificacionService {
 
     private final NotificacionRepository notificacionRepository;
+    private final UsuarioActualService usuarioActualService;
 
-    public NotificacionService(NotificacionRepository notificacionRepository) {
+    public NotificacionService(
+            NotificacionRepository notificacionRepository,
+            UsuarioActualService usuarioActualService) {
+
         this.notificacionRepository = notificacionRepository;
+        this.usuarioActualService = usuarioActualService;
     }
 
-    public List<Notificacion> listar() {
-        return notificacionRepository.findAll();
-    }
+    public Notificacion crear(Usuario usuario, Pedido pedido, String titulo, String mensaje) {
 
-    public Notificacion obtenerPorId(Long id) {
-        return notificacionRepository.findById(id).orElse(null);
-    }
+        if (usuario == null) {
+            return null;
+        }
 
-    public Notificacion guardar(Notificacion notificacion) {
+        Notificacion notificacion = new Notificacion();
+        notificacion.setUsuario(usuario);
+        notificacion.setPedido(pedido);
+        notificacion.setTitulo(titulo);
+        notificacion.setMensaje(mensaje);
+        notificacion.setLeida(false);
+        notificacion.setFecha(LocalDateTime.now());
+
         return notificacionRepository.save(notificacion);
     }
 
-    public void eliminar(Long id) {
-        notificacionRepository.deleteById(id);
+    public List<Notificacion> listarTodas() {
+        return notificacionRepository.findAll();
     }
 
-    public List<Notificacion> listarPorUsuario(Long usuarioId) {
-        return notificacionRepository.findByUsuarioId(usuarioId);
+    public List<Notificacion> listarDe(Usuario usuario) {
+        return notificacionRepository.findByUsuarioIdOrderByFechaDesc(usuario.getId());
     }
 
-    public List<Notificacion> listarPorPedido(Long pedidoId) {
-        return notificacionRepository.findByPedidoId(pedidoId);
+    public Map<String, Long> contarNoLeidas(Usuario usuario) {
+        return Map.of("noLeidas", notificacionRepository.countByUsuarioIdAndLeidaFalse(usuario.getId()));
     }
 
-    public void marcarComoLeida(Long id) {
+    public Notificacion marcarComoLeida(Long id, Usuario usuario) {
 
         Notificacion notificacion = notificacionRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Notificación no encontrada"));
+                .orElseThrow(() -> ApiException.noEncontrado("Notificación no encontrada"));
+
+        if (!notificacion.getUsuario().getId().equals(usuario.getId())
+                && !usuarioActualService.esAdmin(usuario)) {
+            throw ApiException.prohibido("Esta notificación no es tuya");
+        }
 
         notificacion.setLeida(true);
+        return notificacionRepository.save(notificacion);
+    }
 
-        notificacionRepository.save(notificacion);
+    @Transactional
+    public void marcarTodasComoLeidas(Usuario usuario) {
+
+        List<Notificacion> pendientes =
+                notificacionRepository.findByUsuarioIdAndLeidaFalse(usuario.getId());
+
+        pendientes.forEach(n -> n.setLeida(true));
+        notificacionRepository.saveAll(pendientes);
+    }
+
+    public void eliminar(Long id, Usuario usuario) {
+
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> ApiException.noEncontrado("Notificación no encontrada"));
+
+        if (!notificacion.getUsuario().getId().equals(usuario.getId())
+                && !usuarioActualService.esAdmin(usuario)) {
+            throw ApiException.prohibido("Esta notificación no es tuya");
+        }
+
+        notificacionRepository.delete(notificacion);
     }
 }

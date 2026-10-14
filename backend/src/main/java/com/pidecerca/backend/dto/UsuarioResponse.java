@@ -1,5 +1,9 @@
 package com.pidecerca.backend.dto;
 
+import com.pidecerca.backend.entity.Usuario;
+
+import java.time.LocalDateTime;
+
 public class UsuarioResponse {
 
     private Long id;
@@ -9,6 +13,7 @@ public class UsuarioResponse {
     private String telefono;
     private String rol;
     private Boolean activo;
+    private LocalDateTime fechaRegistro;
 
     public UsuarioResponse() {
     }
@@ -20,7 +25,8 @@ public class UsuarioResponse {
             String correo,
             String telefono,
             String rol,
-            Boolean activo) {
+            Boolean activo,
+            LocalDateTime fechaRegistro) {
 
         this.id = id;
         this.nombre = nombre;
@@ -29,6 +35,20 @@ public class UsuarioResponse {
         this.telefono = telefono;
         this.rol = rol;
         this.activo = activo;
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public static UsuarioResponse de(Usuario usuario) {
+        return new UsuarioResponse(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getCorreo(),
+                usuario.getTelefono(),
+                usuario.getRol(),
+                usuario.getActivo(),
+                usuario.getFechaRegistro()
+        );
     }
 
     public Long getId() {
@@ -57,5 +77,9 @@ public class UsuarioResponse {
 
     public Boolean getActivo() {
         return activo;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
     }
 }

@@ -21,24 +21,8 @@ public class DetallePedidoController {
         return detallePedidoService.listar();
     }
 
-    @GetMapping("/{id}")
-    public DetallePedido obtenerPorId(@PathVariable Long id) {
-        return detallePedidoService.obtenerPorId(id);
-    }
-
-    @PostMapping
-    public DetallePedido guardar(@RequestBody DetallePedido detallePedido) {
-        return detallePedidoService.guardar(detallePedido);
-    }
-
-    @PutMapping("/{id}")
-    public DetallePedido actualizar(@PathVariable Long id, @RequestBody DetallePedido detallePedido) {
-        detallePedido.setId(id);
-        return detallePedidoService.guardar(detallePedido);
-    }
-
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        detallePedidoService.eliminar(id);
+    @GetMapping("/pedido/{pedidoId}")
+    public List<DetallePedido> listarPorPedido(@PathVariable Long pedidoId) {
+        return detallePedidoService.listarPorPedido(pedidoId);
     }
 }

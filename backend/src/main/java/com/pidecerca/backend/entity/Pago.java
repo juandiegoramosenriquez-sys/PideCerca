@@ -1,6 +1,9 @@
 package com.pidecerca.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "pago")
@@ -12,12 +15,14 @@ public class Pago {
 
     private Double monto;
     private String metodo;
+    private LocalDateTime fecha;
 
     @Enumerated(EnumType.STRING)
     private EstadoPago estado;
 
     @OneToOne
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "pedido_id", unique = true)
+    @JsonIgnoreProperties({"pago", "detalles"})
     private Pedido pedido;
 
     public Pago() {
@@ -45,6 +50,14 @@ public class Pago {
 
     public void setMetodo(String metodo) {
         this.metodo = metodo;
+    }
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
     }
 
     public EstadoPago getEstado() {

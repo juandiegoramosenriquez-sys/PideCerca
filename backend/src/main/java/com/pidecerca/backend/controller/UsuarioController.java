@@ -1,9 +1,12 @@
 package com.pidecerca.backend.controller;
 
 import com.pidecerca.backend.dto.CambiarPasswordRequest;
+import com.pidecerca.backend.dto.PerfilRequest;
+import com.pidecerca.backend.dto.UsuarioRequest;
 import com.pidecerca.backend.dto.UsuarioResponse;
-import com.pidecerca.backend.entity.Usuario;
+import com.pidecerca.backend.service.UsuarioActualService;
 import com.pidecerca.backend.service.UsuarioService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,71 +16,60 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioActualService usuarioActualService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, UsuarioActualService usuarioActualService) {
         this.usuarioService = usuarioService;
+        this.usuarioActualService = usuarioActualService;
+    }
+
+    @GetMapping("/me")
+    public UsuarioResponse miPerfil() {
+        return UsuarioResponse.de(usuarioActualService.obtener());
+    }
+
+    @PutMapping("/me")
+    public UsuarioResponse actualizarMiPerfil(@RequestBody PerfilRequest request) {
+        return UsuarioResponse.de(
+                usuarioService.actualizarPerfil(usuarioActualService.obtener(), request));
+    }
+
+    @PutMapping("/me/password")
+    public void cambiarMiPassword(@RequestBody CambiarPasswordRequest request) {
+        usuarioService.cambiarPassword(usuarioActualService.obtener(), request);
     }
 
     @GetMapping
     public List<UsuarioResponse> listar() {
-
-        return usuarioService.listar()
-                .stream()
-                .map(this::convertirRespuesta)
-                .toList();
+        return usuarioService.listar().stream().map(UsuarioResponse::de).toList();
     }
 
     @GetMapping("/{id}")
     public UsuarioResponse obtenerPorId(@PathVariable Long id) {
-
-        return convertirRespuesta(
-                usuarioService.obtenerPorId(id)
-        );
+        return UsuarioResponse.de(usuarioService.obtenerPorId(id));
     }
 
     @PostMapping
-    public UsuarioResponse guardar(@RequestBody Usuario usuario) {
-
-        return convertirRespuesta(
-                usuarioService.guardar(usuario)
-        );
+    @ResponseStatus(HttpStatus.CREATED)
+    public UsuarioResponse crear(@RequestBody UsuarioRequest request) {
+        return UsuarioResponse.de(usuarioService.crear(request));
     }
 
     @PutMapping("/{id}")
-    public UsuarioResponse actualizar(
-            @PathVariable Long id,
-            @RequestBody Usuario usuario) {
-
-        usuario.setId(id);
-
-        return convertirRespuesta(
-                usuarioService.guardar(usuario)
-        );
+    public UsuarioResponse actualizar(@PathVariable Long id, @RequestBody UsuarioRequest request) {
+        return UsuarioResponse.de(
+                usuarioService.actualizar(id, request, usuarioActualService.obtener()));
     }
 
-    @PutMapping("/{id}/password")
-    public void cambiarPassword(
-            @PathVariable Long id,
-            @RequestBody CambiarPasswordRequest request) {
-
-        usuarioService.cambiarPassword(id, request);
+    @PutMapping("/{id}/activo")
+    public UsuarioResponse cambiarActivo(@PathVariable Long id, @RequestParam boolean valor) {
+        return UsuarioResponse.de(
+                usuarioService.cambiarActivo(id, valor, usuarioActualService.obtener()));
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Long id) {
-        usuarioService.eliminar(id);
-    }
-
-    private UsuarioResponse convertirRespuesta(Usuario usuario) {
-
-        return new UsuarioResponse(
-                usuario.getId(),
-                usuario.getNombre(),
-                usuario.getApellido(),
-                usuario.getCorreo(),
-                usuario.getTelefono(),
-                usuario.getRol(),
-                usuario.getActivo()
-        );
+        usuarioService.eliminar(id, usuarioActualService.obtener());
     }
 }
