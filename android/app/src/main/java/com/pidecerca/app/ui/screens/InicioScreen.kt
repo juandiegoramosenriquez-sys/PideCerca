@@ -83,18 +83,27 @@ fun InicioScreen(vm: AppViewModel, abrirNegocio: (Long) -> Unit) {
     }
 
     val ubicacion = remember(tienePermiso, recargar) { Ubicacion.ultima(contexto) }
-    val usandoAproximada = ubicacion == null
+    var muyLejos by remember { mutableStateOf(false) }
+    val usandoAproximada = ubicacion == null || muyLejos
 
     LaunchedEffect(busqueda, recargar, tienePermiso) {
         delay(if (busqueda.isBlank()) 0 else 400)
         cargando = negocios.isEmpty()
         runCatching {
-            ApiClient.api.negocios(
-                texto = busqueda.ifBlank { null },
+            val texto = busqueda.ifBlank { null }
+            val cercanos = ApiClient.api.negocios(
+                texto = texto,
                 tipo = null,
                 latitud = ubicacion?.latitude ?: Ubicacion.LATITUD_POR_DEFECTO,
                 longitud = ubicacion?.longitude ?: Ubicacion.LONGITUD_POR_DEFECTO
             )
+            val minimo = cercanos.mapNotNull { it.distanciaMetros }.minOrNull()
+            muyLejos = ubicacion != null && minimo != null && minimo > 100_000
+            if (muyLejos) {
+                ApiClient.api.negocios(texto, null, Ubicacion.LATITUD_POR_DEFECTO, Ubicacion.LONGITUD_POR_DEFECTO)
+            } else {
+                cercanos
+            }
         }
             .onSuccess {
                 negocios = it
@@ -125,7 +134,11 @@ fun InicioScreen(vm: AppViewModel, abrirNegocio: (Long) -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
                 Icon(Icons.Default.LocationOn, contentDescription = null, tint = p.marca, modifier = Modifier.size(16.dp))
                 Text(
-                    if (usandoAproximada) " Ubicación aproximada · Lima" else " Cerca de ti",
+                    when {
+                        muyLejos -> " Estás lejos · distancias desde el centro de Lima"
+                        usandoAproximada -> " Ubicación aproximada · Lima"
+                        else -> " Cerca de ti"
+                    },
                     color = p.texto2,
                     fontSize = 13.sp
                 )

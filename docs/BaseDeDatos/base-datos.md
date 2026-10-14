@@ -147,7 +147,7 @@ Ejemplos:
 
 El siguiente diagrama representa la estructura y las relaciones principales de la base de datos de PideCerca:
 
-![Diagrama Entidad-Relación de PideCerca](![alt text](base-datos-pidecerca.png))
+![Diagrama Entidad-Relación de PideCerca](base-datos-pidecerca.png)
 
 ## 6. Objetivo del diseño
 

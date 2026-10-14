@@ -14,14 +14,23 @@ Utilizada por los clientes para buscar negocios, consultar productos, realizar p
 - Kotlin
 - Jetpack Compose
 
-### Aplicación Web
-Utilizada por los negocios y administradores para gestionar la información del sistema.
+### Aplicación Web del Negocio
+Utilizada por los dueños de los puestos para recibir y preparar pedidos, administrar su menú y consultar su historial. Está pensada para usarse desde el celular.
 
 **Tecnologías:**
+- React
+- Vite
+- JavaScript
+- CSS
+
+### Panel Web del Administrador
+Utilizado por el administrador para gestionar usuarios, negocios y categorías generales, y para supervisar los pedidos de la plataforma.
+
+**Tecnologías:**
+- Django
 - HTML
 - CSS
 - JavaScript
-- Django
 
 ### Backend
 Encargado de procesar las solicitudes, aplicar la lógica del sistema y proporcionar la API REST.
@@ -29,6 +38,7 @@ Encargado de procesar las solicitudes, aplicar la lógica del sistema y proporci
 **Tecnologías:**
 - Java
 - Spring Boot
+- Spring Security con JWT
 - API REST
 
 ### Base de Datos
@@ -55,9 +65,13 @@ Servicios que complementan el funcionamiento del sistema.
 
 La comunicación principal del sistema seguirá el siguiente flujo:
 
-**Aplicación Android / Aplicación Web → API REST → Backend Spring Boot → Base de Datos**
+**Aplicación Android / Web del Negocio (React) / Panel Admin (Django) → API REST → Backend Spring Boot → Base de Datos**
 
 El Backend será el encargado de recibir las solicitudes, procesarlas y devolver la información correspondiente.
+
+- La aplicación Android y la web React llaman directamente a la API REST desde el dispositivo del usuario.
+- El panel Django llama a la API REST desde su servidor y guarda el token JWT del administrador en la sesión.
+- Todas las aplicaciones se autentican con un token JWT que el backend entrega al iniciar sesión. El backend controla los permisos según el rol: CLIENTE, NEGOCIO o ADMIN.
 
 ## 4. Herramientas utilizadas
 
@@ -72,11 +86,11 @@ El Backend será el encargado de recibir las solicitudes, procesarlas y devolver
 
 El siguiente diagrama representa la arquitectura general del sistema PideCerca:
 
-![Diagrama de arquitectura de PideCerca](![alt text](arquitectura-pidecerca.png))
+![Diagrama de arquitectura de PideCerca](arquitectura-pidecerca.png)
 
 ## 6. Resumen de la arquitectura
 
-PideCerca estará compuesto por una aplicación móvil para los clientes, una aplicación web para negocios y administradores, un Backend desarrollado con Spring Boot y una base de datos central.
+PideCerca estará compuesto por una aplicación móvil para los clientes, una aplicación web en React para los negocios, un panel web en Django para el administrador, un Backend desarrollado con Spring Boot y una base de datos central.
 
 Las aplicaciones se comunicarán con el Backend mediante una API REST. El Backend procesará las solicitudes y administrará la comunicación con la base de datos y los servicios externos.
 
