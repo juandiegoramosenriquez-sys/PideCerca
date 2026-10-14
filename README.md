@@ -54,17 +54,17 @@ npm run dev
 
 Abre http://localhost:5173
 
-### 3. Panel del administrador, Django (puerto 8000)
+### 3. Panel del administrador, Django (puerto 8001)
 
 ```bash
 cd web/admin
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python manage.py runserver 8000
+python manage.py runserver 8001
 ```
 
-Abre http://localhost:8000
+Abre http://localhost:8001
 
 ### 4. App Android
 
