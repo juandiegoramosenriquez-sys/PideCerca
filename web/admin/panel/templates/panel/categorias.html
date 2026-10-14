@@ -1,0 +1,87 @@
+{% extends "panel/base.html" %}
+{% block titulo %}Categorías{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <div>
+    <h1>Gestión de categorías</h1>
+    <div class="subtexto">Las categorías generales las pueden usar todos los negocios.</div>
+  </div>
+</div>
+
+<div class="dos-columnas">
+  <form method="post" class="tarjeta formulario">
+    {% csrf_token %}
+    <h2 style="margin: 0; font-size: 17px">Nueva categoría general</h2>
+    <div class="campo"><label>Nombre</label><input name="nombre" required placeholder="Anticuchos"></div>
+    <div class="campo"><label>Descripción</label><input name="descripcion"></div>
+    <button class="boton principal">Agregar</button>
+  </form>
+
+  <section class="tarjeta" style="padding: 4px">
+    <table class="tabla">
+      <thead><tr><th>Categoría general</th><th class="ocultar-movil">Descripción</th><th></th></tr></thead>
+      <tbody>
+        {% for c in generales %}
+        {% if editar == c.id %}
+        <tr>
+          <td colspan="3">
+            <form method="post" class="fila" style="flex-wrap: wrap">
+              {% csrf_token %}
+              <input type="hidden" name="id" value="{{ c.id }}">
+              <div class="campo" style="flex: 1; min-width: 160px"><input name="nombre" value="{{ c.nombre }}" required></div>
+              <div class="campo" style="flex: 1; min-width: 160px"><input name="descripcion" value="{{ c.descripcion|default:'' }}"></div>
+              <button class="boton principal chico">Guardar</button>
+              <a class="boton secundario chico" href="{% url 'categorias' %}">Cancelar</a>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td><b>{{ c.nombre }}</b></td>
+          <td class="ocultar-movil subtexto">{{ c.descripcion|default:"" }}</td>
+          <td>
+            <div class="acciones">
+              <a class="boton secundario chico" href="?editar={{ c.id }}">Editar</a>
+              <form method="post" action="{% url 'categoria_eliminar' c.id %}" data-confirmar="¿Eliminar la categoría {{ c.nombre }}?">
+                {% csrf_token %}
+                <button class="boton peligro chico">Eliminar</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+        {% empty %}
+        <tr><td colspan="3" class="subtexto">No hay categorías generales.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+{% if de_negocios %}
+<section class="seccion" style="margin-top: 24px">
+  <h2>Categorías creadas por los negocios</h2>
+  <div class="tarjeta" style="padding: 4px">
+    <table class="tabla">
+      <thead><tr><th>Categoría</th><th>Negocio</th><th></th></tr></thead>
+      <tbody>
+        {% for c in de_negocios %}
+        <tr>
+          <td>{{ c.nombre }}</td>
+          <td class="subtexto">{{ c.negocio.nombre }}</td>
+          <td>
+            <div class="acciones">
+              <form method="post" action="{% url 'categoria_eliminar' c.id %}" data-confirmar="¿Eliminar la categoría {{ c.nombre }} de {{ c.negocio.nombre }}?">
+                {% csrf_token %}
+                <button class="boton peligro chico">Eliminar</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

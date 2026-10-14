@@ -1,0 +1,39 @@
+{% extends "panel/base.html" %}
+{% block titulo %}{% if nuevo %}Nuevo usuario{% else %}Editar usuario{% endif %}{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <h1>{% if nuevo %}Nuevo usuario{% else %}Editar usuario{% endif %}</h1>
+  <a class="boton secundario chico" href="{% url 'usuarios' %}">Volver</a>
+</div>
+
+<form method="post" class="formulario tarjeta" style="max-width: 720px">
+  {% csrf_token %}
+  <div class="rejilla-2">
+    <div class="campo"><label>Nombre</label><input name="nombre" value="{{ usuario.nombre|default:'' }}" required></div>
+    <div class="campo"><label>Apellido</label><input name="apellido" value="{{ usuario.apellido|default:'' }}"></div>
+  </div>
+  <div class="rejilla-2">
+    <div class="campo"><label>Correo</label><input name="correo" type="email" value="{{ usuario.correo|default:'' }}" required></div>
+    <div class="campo"><label>Teléfono</label><input name="telefono" value="{{ usuario.telefono|default:'' }}"></div>
+  </div>
+  <div class="rejilla-2">
+    <div class="campo">
+      <label>Rol</label>
+      <select name="rol">
+        {% for valor, texto in roles %}
+        <option value="{{ valor }}" {% if usuario.rol == valor %}selected{% endif %}>{{ texto }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label>{% if nuevo %}Contraseña{% else %}Nueva contraseña (opcional){% endif %}</label>
+      <input name="password" type="password" autocomplete="new-password" {% if nuevo %}required minlength="6"{% endif %}>
+    </div>
+  </div>
+  <label class="radio-opcion tarjeta" style="padding: 12px">
+    <input type="checkbox" name="activo" {% if usuario.activo %}checked{% endif %}>
+    Cuenta activa
+  </label>
+  <button class="boton principal grande">Guardar</button>
+</form>
+{% endblock %}

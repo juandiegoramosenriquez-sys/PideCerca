@@ -1,0 +1,63 @@
+{% extends "panel/base.html" %}
+{% load panel_extras %}
+{% block titulo %}Resumen{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <div>
+    <div class="subtexto">Hola, {{ admin.nombre }}</div>
+    <h1>Resumen general</h1>
+  </div>
+  <div class="colores">
+    <button class="color" type="button" data-color="morado"><i style="background:#7C4DFF"></i>Morado</button>
+    <button class="color" type="button" data-color="verde"><i style="background:#00E676"></i>Verde</button>
+    <button class="color" type="button" data-color="amarillo"><i style="background:#FFD600"></i>Amarillo</button>
+    <button class="color" type="button" data-color="rojo"><i style="background:#FF1744"></i>Rojo</button>
+    <button class="color" type="button" data-color="azul"><i style="background:#2979FF"></i>Azul</button>
+  </div>
+</div>
+
+<div class="resumen-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr))">
+  <div class="metrica"><span>Usuarios</span><b>{{ datos.totalUsuarios }}</b><span>{{ datos.totalClientes }} clientes · {{ datos.totalDuenos }} negocios</span></div>
+  <div class="metrica"><span>Negocios</span><b>{{ datos.totalNegocios }}</b><span>{{ datos.negociosActivos }} habilitados</span></div>
+  <div class="metrica"><span>Pedidos</span><b style="color: var(--marca)">{{ datos.totalPedidos }}</b><span>{{ datos.pedidosHoy }} hoy</span></div>
+  <div class="metrica"><span>Ventas hoy</span><b style="color: var(--listo-tinta)">{{ datos.ventasHoy|soles }}</b><span>Total: {{ datos.ventasTotales|soles }}</span></div>
+</div>
+
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2 style="margin: 0 0 14px; font-size: 17px">Pedidos por estado</h2>
+    <div class="barras">
+      {% for b in barras %}
+      <div class="barra-fila">
+        <span>{{ b.texto }}</span>
+        <div class="pista"><div class="{{ b.estado|estado_clase }}" style="width: {{ b.cantidad|porcentaje:total_pedidos }}%"></div></div>
+        <b style="text-align: right">{{ b.cantidad }}</b>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="tarjeta" style="padding: 6px">
+    <div class="fila entre" style="padding: 10px 10px 4px">
+      <h2 style="margin: 0; font-size: 17px">Últimos pedidos</h2>
+      <a class="boton secundario chico" href="{% url 'pedidos' %}">Ver todos</a>
+    </div>
+    <table class="tabla">
+      <thead><tr><th>#</th><th>Cliente</th><th class="ocultar-movil">Negocio</th><th>Total</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for p in pedidos %}
+        <tr class="clic" onclick="location.href='{% url 'pedido_detalle' p.id %}'">
+          <td><b>#{{ p.id }}</b></td>
+          <td>{{ p.usuario.nombre }} {{ p.usuario.apellido|default:"" }}</td>
+          <td class="ocultar-movil">{{ p.negocio.nombre }}</td>
+          <td>{{ p.total|soles }}</td>
+          <td><span class="pastilla {{ p.estado|estado_clase }}">{{ p.estado|estado_texto }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="subtexto">Todavía no hay pedidos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

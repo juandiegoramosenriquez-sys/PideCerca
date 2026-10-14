@@ -1,0 +1,62 @@
+{% extends "panel/base.html" %}
+{% load panel_extras %}
+{% block titulo %}Pedido #{{ pedido.id }}{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <div>
+    <div class="subtexto">{{ pedido.fecha|fecha }}</div>
+    <h1>Pedido #{{ pedido.id }}</h1>
+  </div>
+  <div class="fila">
+    <span class="pastilla {{ pedido.estado|estado_clase }}" style="font-size: 14px; padding: 6px 12px">{{ pedido.estado|estado_texto }}</span>
+    <a class="boton secundario chico" href="{% url 'pedidos' %}">Volver</a>
+  </div>
+</div>
+
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2 style="margin: 0 0 12px; font-size: 17px">Productos</h2>
+    <ul class="productos">
+      {% for d in pedido.detalles %}
+      <li class="fila entre">
+        <span class="fila"><span class="cantidad">{{ d.cantidad }}</span>{{ d.producto.nombre }}</span>
+        <span>{{ d.subtotal|soles }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if pedido.notas %}<div class="nota">{{ pedido.notas }}</div>{% endif %}
+    <div class="pedido-pie" style="margin: 12px 0 0">
+      <span>Total</span>
+      <b>{{ pedido.total|soles }}</b>
+    </div>
+  </section>
+
+  <section class="formulario">
+    <div class="tarjeta">
+      <h2 style="margin: 0 0 10px; font-size: 17px">Cliente</h2>
+      <b>{{ pedido.usuario.nombre }} {{ pedido.usuario.apellido|default:"" }}</b>
+      <div class="subtexto">{{ pedido.usuario.correo }}{% if pedido.usuario.telefono %} · {{ pedido.usuario.telefono }}{% endif %}</div>
+    </div>
+    <div class="tarjeta">
+      <h2 style="margin: 0 0 10px; font-size: 17px">Negocio</h2>
+      <b>{{ pedido.negocio.nombre }}</b>
+      <div class="subtexto">{{ pedido.negocio.direccion|default:"" }}</div>
+    </div>
+    <div class="tarjeta">
+      <h2 style="margin: 0 0 10px; font-size: 17px">Pago y tiempos</h2>
+      <div class="subtexto">Método: {{ pedido.pago.metodo|metodo_pago }} · Estado del pago: {{ pedido.pago.estado|default:"-" }}</div>
+      <div class="subtexto">Tiempo estimado: {{ pedido.tiempoPreparacion|default:"-" }} min</div>
+      {% if pedido.fechaAceptado %}<div class="subtexto">Aceptado: {{ pedido.fechaAceptado|fecha }}</div>{% endif %}
+      {% if pedido.fechaListo %}<div class="subtexto">Listo: {{ pedido.fechaListo|fecha }}</div>{% endif %}
+      {% if pedido.fechaRecogido %}<div class="subtexto">Recogido: {{ pedido.fechaRecogido|fecha }}</div>{% endif %}
+      {% if pedido.motivoCancelacion %}<div class="aviso error" style="margin: 10px 0 0">Motivo: {{ pedido.motivoCancelacion }}</div>{% endif %}
+    </div>
+    {% if pedido.estado == 'PENDIENTE' %}
+    <form method="post" action="{% url 'pedido_cancelar' pedido.id %}" data-confirmar="¿Cancelar el pedido #{{ pedido.id }}? Se reembolsará el pago al cliente.">
+      {% csrf_token %}
+      <button class="boton peligro ancho">Cancelar pedido y reembolsar</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

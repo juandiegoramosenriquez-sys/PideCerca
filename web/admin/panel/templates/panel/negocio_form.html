@@ -1,0 +1,82 @@
+{% extends "panel/base.html" %}
+{% block titulo %}{% if nuevo %}Registrar negocio{% else %}Editar negocio{% endif %}{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <h1>{% if nuevo %}Registrar negocio{% else %}Editar {{ negocio.nombre }}{% endif %}</h1>
+  <a class="boton secundario chico" href="{% url 'negocios' %}">Volver</a>
+</div>
+
+<form method="post" class="formulario" style="max-width: 820px">
+  {% csrf_token %}
+  <section class="tarjeta formulario">
+    <h2 style="margin: 0; font-size: 17px">Datos del negocio</h2>
+    <div class="rejilla-2">
+      <div class="campo"><label>Nombre</label><input name="nombre" value="{{ negocio.nombre|default:'' }}" required></div>
+      <div class="campo"><label>Tipo de comida</label><input name="tipoComida" value="{{ negocio.tipoComida|default:'' }}" placeholder="Hamburguesas"></div>
+    </div>
+    <div class="campo"><label>Descripción</label><textarea name="descripcion">{{ negocio.descripcion|default:'' }}</textarea></div>
+    <div class="rejilla-2">
+      <div class="campo"><label>Dirección</label><input name="direccion" value="{{ negocio.direccion|default:'' }}"></div>
+      <div class="campo"><label>Teléfono</label><input name="telefono" value="{{ negocio.telefono|default:'' }}"></div>
+    </div>
+    <div class="rejilla-2">
+      <div class="campo"><label>Horario</label><input name="horario" value="{{ negocio.horario|default:'' }}" placeholder="Lun a Dom · 6 pm - 12 am"></div>
+      <div class="campo"><label>Tiempo de preparación (min)</label><input name="tiempoEstimado" type="number" min="1" max="240" value="{{ negocio.tiempoEstimado|default:'' }}"></div>
+    </div>
+    <div class="rejilla-2">
+      <div class="campo"><label>Latitud</label><input name="latitud" value="{{ negocio.latitud|default_if_none:'' }}" placeholder="-12.0464"></div>
+      <div class="campo"><label>Longitud</label><input name="longitud" value="{{ negocio.longitud|default_if_none:'' }}" placeholder="-77.0428"></div>
+    </div>
+    <div class="campo"><label>Imagen (enlace)</label><input name="imagen" value="{{ negocio.imagen|default:'' }}"></div>
+    <label class="radio-opcion tarjeta" style="padding: 12px">
+      <input type="checkbox" name="activo" {% if negocio.activo %}checked{% endif %}>
+      Negocio habilitado (visible para los clientes)
+    </label>
+  </section>
+
+  <section class="tarjeta formulario">
+    <h2 style="margin: 0; font-size: 17px">Dueño del negocio</h2>
+    {% if nuevo %}
+    <div class="fila" style="gap: 18px; flex-wrap: wrap">
+      <label class="radio-opcion"><input type="radio" name="modo_propietario" value="nuevo" {% if modo != 'existente' %}checked{% endif %}> Crear una cuenta nueva</label>
+      <label class="radio-opcion"><input type="radio" name="modo_propietario" value="existente" {% if modo == 'existente' %}checked{% endif %}> Usar un usuario existente</label>
+    </div>
+    <div data-modo="nuevo" class="formulario {% if modo == 'existente' %}oculto{% endif %}">
+      <div class="rejilla-2">
+        <div class="campo"><label>Nombre</label><input name="p_nombre" value="{{ propietario.nombre|default:'' }}"></div>
+        <div class="campo"><label>Apellido</label><input name="p_apellido" value="{{ propietario.apellido|default:'' }}"></div>
+      </div>
+      <div class="rejilla-2">
+        <div class="campo"><label>Correo (para entrar a la web del negocio)</label><input name="p_correo" type="email" value="{{ propietario.correo|default:'' }}"></div>
+        <div class="campo"><label>Teléfono</label><input name="p_telefono" value="{{ propietario.telefono|default:'' }}"></div>
+      </div>
+      <div class="campo"><label>Contraseña inicial</label><input name="p_password" type="password" autocomplete="new-password" minlength="6"></div>
+    </div>
+    <div data-modo="existente" class="campo {% if modo != 'existente' %}oculto{% endif %}">
+      <label>Usuario</label>
+      <select name="propietarioId">
+        <option value="">Selecciona un usuario</option>
+        {% for u in candidatos %}
+        <option value="{{ u.id }}">{{ u.nombre }} {{ u.apellido|default:"" }} · {{ u.correo }}</option>
+        {% endfor %}
+      </select>
+      <div class="subtexto">Si el usuario es cliente, pasará a tener rol Negocio.</div>
+    </div>
+    {% else %}
+    <div class="campo">
+      <label>Dueño actual: {% if negocio.propietario %}{{ negocio.propietario.nombre }} · {{ negocio.propietario.correo }}{% else %}sin dueño{% endif %}</label>
+      <select name="propietarioId">
+        <option value="">Mantener el dueño actual</option>
+        {% for u in candidatos %}
+        {% if not negocio.propietario or u.id != negocio.propietario.id %}
+        <option value="{{ u.id }}">{{ u.nombre }} {{ u.apellido|default:"" }} · {{ u.correo }}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+  </section>
+
+  <button class="boton principal grande">Guardar</button>
+</form>
+{% endblock %}

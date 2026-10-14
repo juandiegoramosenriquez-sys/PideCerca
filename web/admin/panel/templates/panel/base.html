@@ -1,0 +1,50 @@
+{% load static %}<!doctype html>
+<html lang="es" data-tema="oscuro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Panel{% endblock %} · PideCerca Admin</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230D1014'/%3E%3Cpath d='M32 12c-9.4 0-17 7.4-17 16.6C15 41 32 54 32 54s17-13 17-25.4C49 19.4 41.4 12 32 12z' fill='%237C4DFF'/%3E%3Ccircle cx='32' cy='29' r='7' fill='%2300E676'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{% static 'panel/estilos.css' %}">
+  <script src="{% static 'panel/tema.js' %}"></script>
+</head>
+<body>
+<div class="app">
+  {% if admin %}
+  <header class="cabecera">
+    <div class="cabecera-fila">
+      <div class="logo">Pide<span>Cerca</span><span class="etiqueta-admin">Admin</span></div>
+      <nav class="pestanas solo-escritorio">
+        <a class="pestana {% if seccion == 'resumen' %}activa{% endif %}" href="{% url 'resumen' %}">Resumen</a>
+        <a class="pestana {% if seccion == 'usuarios' %}activa{% endif %}" href="{% url 'usuarios' %}">Usuarios</a>
+        <a class="pestana {% if seccion == 'negocios' %}activa{% endif %}" href="{% url 'negocios' %}">Negocios</a>
+        <a class="pestana {% if seccion == 'categorias' %}activa{% endif %}" href="{% url 'categorias' %}">Categorías</a>
+        <a class="pestana {% if seccion == 'pedidos' %}activa{% endif %}" href="{% url 'pedidos' %}">Pedidos</a>
+      </nav>
+      <div class="espacio"></div>
+      <span class="negocio-nombre solo-escritorio">{{ admin.nombre }} {{ admin.apellido }}</span>
+      <button class="boton-icono" type="button" data-alternar-modo aria-label="Cambiar modo claro u oscuro"><span data-icono-modo>☀</span></button>
+      <a class="boton secundario chico" href="{% url 'logout' %}">Salir</a>
+    </div>
+    <nav class="pestanas solo-movil">
+      <a class="pestana {% if seccion == 'resumen' %}activa{% endif %}" href="{% url 'resumen' %}">Resumen</a>
+      <a class="pestana {% if seccion == 'usuarios' %}activa{% endif %}" href="{% url 'usuarios' %}">Usuarios</a>
+      <a class="pestana {% if seccion == 'negocios' %}activa{% endif %}" href="{% url 'negocios' %}">Negocios</a>
+      <a class="pestana {% if seccion == 'categorias' %}activa{% endif %}" href="{% url 'categorias' %}">Categorías</a>
+      <a class="pestana {% if seccion == 'pedidos' %}activa{% endif %}" href="{% url 'pedidos' %}">Pedidos</a>
+    </nav>
+  </header>
+  {% endif %}
+  <main class="contenido">
+    {% if messages %}
+    <div class="mensajes">
+      {% for m in messages %}
+      <div class="aviso {% if m.tags == 'error' %}error{% else %}exito{% endif %}">{{ m }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block contenido %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends "panel/base.html" %}
+{% load panel_extras %}
+{% block titulo %}Pedidos{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <div>
+    <h1>Supervisión de pedidos</h1>
+    <div class="subtexto">{{ pedidos|length }} pedido{{ pedidos|length|pluralize }} · {{ total|soles }} en ventas</div>
+  </div>
+</div>
+
+<form class="filtros" method="get">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {% for valor, texto in estados %}
+    <option value="{{ valor }}" {% if estado == valor %}selected{% endif %}>{{ texto }}</option>
+    {% endfor %}
+  </select>
+  <select name="negocio" onchange="this.form.submit()">
+    <option value="">Todos los negocios</option>
+    {% for id, nombre in negocios %}
+    <option value="{{ id }}" {% if negocio == id|stringformat:'s' %}selected{% endif %}>{{ nombre }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="tarjeta" style="padding: 4px; overflow-x: auto">
+  <table class="tabla">
+    <thead>
+      <tr><th>#</th><th>Fecha</th><th>Cliente</th><th class="ocultar-movil">Negocio</th><th>Total</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      {% for p in pedidos %}
+      <tr class="clic" onclick="location.href='{% url 'pedido_detalle' p.id %}'">
+        <td><b>#{{ p.id }}</b></td>
+        <td>{{ p.fecha|fecha }}</td>
+        <td>{{ p.usuario.nombre }} {{ p.usuario.apellido|default:"" }}</td>
+        <td class="ocultar-movil">{{ p.negocio.nombre }}</td>
+        <td>{{ p.total|soles }}</td>
+        <td><span class="pastilla {{ p.estado|estado_clase }}">{{ p.estado|estado_texto }}</span></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="subtexto">No hay pedidos con estos filtros.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

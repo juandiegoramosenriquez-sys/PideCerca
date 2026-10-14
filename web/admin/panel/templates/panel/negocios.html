@@ -1,0 +1,63 @@
+{% extends "panel/base.html" %}
+{% block titulo %}Negocios{% endblock %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <div>
+    <h1>Gestión de negocios</h1>
+    <div class="subtexto">{{ negocios|length }} negocio{{ negocios|length|pluralize }}</div>
+  </div>
+  <a class="boton principal" href="{% url 'negocio_nuevo' %}">+ Registrar negocio</a>
+</div>
+
+<form class="filtros" method="get">
+  <input name="q" value="{{ q }}" placeholder="Buscar por nombre, tipo o dirección">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos</option>
+    <option value="habilitados" {% if estado == 'habilitados' %}selected{% endif %}>Habilitados</option>
+    <option value="deshabilitados" {% if estado == 'deshabilitados' %}selected{% endif %}>Deshabilitados</option>
+  </select>
+  <button class="boton secundario">Buscar</button>
+</form>
+
+<div class="tarjeta" style="padding: 4px; overflow-x: auto">
+  <table class="tabla">
+    <thead>
+      <tr><th>Negocio</th><th class="ocultar-movil">Tipo</th><th class="ocultar-movil">Dueño</th><th>Estado</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for n in negocios %}
+      <tr>
+        <td>
+          <b>{{ n.nombre }}</b>
+          <div class="subtexto">{{ n.direccion|default:"Sin dirección" }}</div>
+        </td>
+        <td class="ocultar-movil">{{ n.tipoComida|default:"-" }}</td>
+        <td class="ocultar-movil">
+          {% if n.propietario %}{{ n.propietario.nombre }} {{ n.propietario.apellido|default:"" }}<div class="subtexto">{{ n.propietario.correo }}</div>{% else %}<span class="subtexto">Sin dueño</span>{% endif %}
+        </td>
+        <td>
+          {% if n.activo %}<span class="pastilla listo">Habilitado</span>{% else %}<span class="pastilla cancelado">Deshabilitado</span>{% endif %}
+          {% if n.activo %}<div class="subtexto" style="margin-top: 4px">{% if n.abierto %}Abierto ahora{% else %}Cerrado{% endif %}</div>{% endif %}
+        </td>
+        <td>
+          <div class="acciones">
+            <a class="boton secundario chico" href="{% url 'negocio_editar' n.id %}">Editar</a>
+            <form method="post" action="{% url 'negocio_estado' n.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="valor" value="{% if n.activo %}false{% else %}true{% endif %}">
+              <button class="boton {% if n.activo %}peligro{% else %}principal{% endif %} chico">{% if n.activo %}Deshabilitar{% else %}Habilitar{% endif %}</button>
+            </form>
+            <form method="post" action="{% url 'negocio_eliminar' n.id %}" data-confirmar="¿Eliminar {{ n.nombre }}? Solo se puede si no tiene productos ni pedidos.">
+              {% csrf_token %}
+              <button class="boton peligro chico">Eliminar</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="subtexto">No se encontraron negocios.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
