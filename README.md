@@ -72,7 +72,7 @@ Abre http://localhost:8001
 2. Espera a que termine la sincronización de Gradle.
 3. Ejecuta la app en el emulador.
 
-El emulador llega al backend de tu PC por `http://10.0.2.2:8080/api/`. Para usar un **celular real**, cambia `pidecerca.apiUrl` en `android/gradle.properties` por la IP de tu PC en la red wifi, por ejemplo `http://192.168.1.50:8080/api/`.
+La app se conecta a `http://localhost:8080/api/`. Antes de ejecutarla, en el emulador o en un celular conectado por cable con la depuración USB activada, haz doble clic en `4-conectar-celular.bat`. Ese archivo ejecuta `adb reverse tcp:8080 tcp:8080` para que el celular use el backend de tu PC. Repítelo cada vez que conectes el cable o reinicies el emulador.
 
 ## Cuentas de prueba
 
